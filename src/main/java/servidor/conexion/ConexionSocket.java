@@ -12,7 +12,7 @@ public class ConexionSocket {
     private DataInputStream dataIn;
 
 
-    private int puerto = 9000;
+    private int puerto = 8888;
 
     public void getConexionSocket() {
 
@@ -27,11 +27,11 @@ public class ConexionSocket {
             dataIn = new DataInputStream(socket.getInputStream());
 
 
-            if (dataIn.readUTF().equals("1")) {
+            if (dataIn.readUTF().equals("2")) {
                 Dao dao = new Dao();
-                dao.mostrar();
+                dao.mostrarRelacionSucursalClienteCuenta();
             }
-            socket.close();
+
 
         } catch (IOException e) {
             System.out.println(e.getMessage());
