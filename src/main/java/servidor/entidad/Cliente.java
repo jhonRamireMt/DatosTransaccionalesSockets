@@ -1,41 +1,90 @@
 package servidor.entidad;
 
+import java.util.Date;
+
 public class Cliente {
-    private int cedula;
-    private String nombre;
-    private int sucursal_idSucursal;
+    private int numero_documento;
+    private String nombres;
+    private String apellidos;
+    private Date fecha_creado;
+    private int numero_telefono;
+    private int clave;
+    private Cuenta cuenta;
 
-    public Cliente(int cedula, String nombre, int sucursal_idSucursal) {
-        this.cedula = cedula;
-        this.nombre = nombre;
-        this.sucursal_idSucursal = sucursal_idSucursal;
+    public Cliente(int numero_documento, String nombres, String apellidos, Date fecha_creado, int numero_telefono, int clave) {
+        this.numero_documento = numero_documento;
+        this.nombres = nombres;
+        this.apellidos = apellidos;
+        this.fecha_creado = fecha_creado;
+        this.numero_telefono = numero_telefono;
+        this.clave = clave;
     }
 
-    public int getCedula() {
-        return cedula;
+    /*ESTE CONSTRUCTOR INICIALIZA LOS ATRIBUTOS PARA UNA CONSULTA DE SALDO*/
+    public Cliente(int numero_documento, String nombres, String apellidos, Cuenta cuenta) {
+        this.numero_documento = numero_documento;
+        this.nombres = nombres;
+        this.apellidos = apellidos;
+        this.cuenta = cuenta;
     }
 
-    public void setCedula(int cedula) {
-        this.cedula = cedula;
+    public int getNumero_documento() {
+        return numero_documento;
     }
 
-    public String getNombre() {
-        return nombre;
+    public void setNumero_documento(int numero_documento) {
+        this.numero_documento = numero_documento;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public String getNombres() {
+        return nombres;
     }
 
-    public int getSucursal_idSucursal() {
-        return sucursal_idSucursal;
+    public void setNombres(String nombres) {
+        this.nombres = nombres;
     }
 
-    public void setSucursal_idSucursal(int sucursal_idSucursal) {
-        this.sucursal_idSucursal = sucursal_idSucursal;
+    public String getApellidos() {
+        return apellidos;
     }
 
-    public void mostrarSelectCliente(){
-        System.out.println("nombre: " + nombre + " cedula: "+cedula+" sucursal: "+sucursal_idSucursal);
+    public void setApellidos(String apellidos) {
+        this.apellidos = apellidos;
+    }
+
+    public Date getFecha_creado() {
+        return fecha_creado;
+    }
+
+    public void setFecha_creado(Date fecha_creado) {
+        this.fecha_creado = fecha_creado;
+    }
+
+    public int getNumero_telefono() {
+        return numero_telefono;
+    }
+
+    public void setNumero_telefono(int numero_telefono) {
+        this.numero_telefono = numero_telefono;
+    }
+
+    public int getClave() {
+        return clave;
+    }
+
+    public void setClave(int clave) {
+        this.clave = clave;
+    }
+
+    public String mostrarConsultaDeSaldo(){
+        return "Cedula: "+numero_documento +"\n"+
+                "Nombre cliente: "+nombres+" "+apellidos +"\n"+
+                "Numero de cuenta: " +cuenta.getNumero_cuenta() +"\n"+
+                "Saldo disponible: "+cuenta.getSaldo() +"\n" +
+                "Tipo de cuenta: " +cuenta.getTipo_cuenta();
+    }
+
+    public int mostrarNumeroCuenta(){
+        return cuenta.getNumero_cuenta();
     }
 }

@@ -3,48 +3,47 @@ package servidor.entidad;
 import java.util.Date;
 
 public class Movimiento {
+    private int id_movimiento;
+    private String tipo_movimiento;
+    private int monto;
+    private Date fecha_creado;
 
-    private int idMovimiento;
-    private Date fecha;
-    private String tipo;
-    private int cuenta_numero;
-
-    public Movimiento(int idMovimiento, Date fecha, String tipo, int cuenta_numero) {
-        this.idMovimiento = idMovimiento;
-        this.fecha = fecha;
-        this.tipo = tipo;
-        this.cuenta_numero = cuenta_numero;
+    public Movimiento(int id_movimiento, String tipo_movimiento, int monto, Date fecha_creado) {
+        this.id_movimiento = id_movimiento;
+        this.tipo_movimiento = tipo_movimiento;
+        this.monto = monto;
+        this.fecha_creado = fecha_creado;
     }
 
-    public int getIdMovimiento() {
-        return idMovimiento;
+    public int getId_movimiento() {
+        return id_movimiento;
     }
 
-    public void setIdMovimiento(int idMovimiento) {
-        this.idMovimiento = idMovimiento;
+    public void setId_movimiento(int id_movimiento) {
+        this.id_movimiento = id_movimiento;
     }
 
-    public Date getFecha() {
-        return fecha;
+    public String getTipo_movimiento() {
+        return tipo_movimiento;
     }
 
-    public void setFecha(Date fecha) {
-        this.fecha = fecha;
+    public void setTipo_movimiento(String tipo_movimiento) {
+        this.tipo_movimiento = tipo_movimiento;
     }
 
-    public String getTipo() {
-        return tipo;
+    public int getMonto() {
+        return monto;
     }
 
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
+    public void setMonto(int monto) {
+        this.monto = monto;
     }
 
-    public int getCuenta_numero() {
-        return cuenta_numero;
+    public Date getFecha_creado() {
+        return fecha_creado;
     }
 
-    public void setCuenta_numero(int cuenta_numero) {
-        this.cuenta_numero = cuenta_numero;
+    public void setFecha_creado(Date fecha_creado) {
+        this.fecha_creado = fecha_creado;
     }
 }

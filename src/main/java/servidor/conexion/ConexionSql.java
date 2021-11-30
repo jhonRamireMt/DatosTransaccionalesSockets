@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 
 public class ConexionSql {
 
-    private String bd = "db_persistencia";
+    private String bd = "cajero";
     private String usuario = "root";
     private String password = "Asdk2021**@@";
     private String url = "jdbc:mysql://localhost:3306/"+bd;

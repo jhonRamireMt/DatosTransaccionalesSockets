@@ -1,38 +1,61 @@
 package servidor.entidad;
 
+import java.util.Date;
+
 public class Cuenta {
+    private int numero_cuenta;
+    private Double saldo;
+    private Date fecha_creado;
+    private String tipo_cuenta;
 
-    private int numero;
-    private String tipo;
-    private int cliente_cedula;
 
-    public Cuenta(int numero, String tipo, int cliente_cedula) {
-        this.numero = numero;
-        this.tipo = tipo;
-        this.cliente_cedula = cliente_cedula;
+    public Cuenta(int numero_cuenta, Double saldo, Date fecha_creado, String tipo_cuenta) {
+        this.numero_cuenta = numero_cuenta;
+        this.saldo = saldo;
+        this.fecha_creado = fecha_creado;
+        this.tipo_cuenta = tipo_cuenta;
     }
 
-    public int getNumero() {
-        return numero;
+    public Cuenta(int numero_cuenta, Double saldo, String tipo_cuenta) {
+        this.numero_cuenta = numero_cuenta;
+        this.saldo = saldo;
+        this.tipo_cuenta = tipo_cuenta;
     }
 
-    public void setNumero(int numero) {
-        this.numero = numero;
+    public Cuenta(int numero_cuenta, String tipo_cuenta) {
+        this.numero_cuenta = numero_cuenta;
+        this.tipo_cuenta = tipo_cuenta;
     }
 
-    public String getTipo() {
-        return tipo;
+    public int getNumero_cuenta() {
+        return numero_cuenta;
     }
 
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
+    public void setNumero_cuenta(int numero_cuenta) {
+        this.numero_cuenta = numero_cuenta;
     }
 
-    public int getCliente_cedula() {
-        return cliente_cedula;
+    public Double getSaldo() {
+        return saldo;
     }
 
-    public void setCliente_cedula(int cliente_cedula) {
-        this.cliente_cedula = cliente_cedula;
+    public void setSaldo(Double saldo) {
+        this.saldo = saldo;
+    }
+
+    public Date getFecha_creado() {
+        return fecha_creado;
+    }
+
+    public void setFecha_creado(Date fecha_creado) {
+        this.fecha_creado = fecha_creado;
+    }
+
+    public String getTipo_cuenta() {
+        return tipo_cuenta;
+    }
+
+    public void setTipo_cuenta(String tipo_cuenta) {
+        this.tipo_cuenta = tipo_cuenta;
     }
 }

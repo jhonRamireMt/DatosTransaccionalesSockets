@@ -1,8 +1,9 @@
 package servidor.conexion;
 
+import servidor.entidad.Ciudad;
 import servidor.entidad.Cliente;
 import servidor.entidad.Cuenta;
-import servidor.entidad.Sucursal;
+import servidor.entidad.Pais;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,125 +21,123 @@ public class Dao {
     private Connection con = conexionSql.getConexion();
     private PreparedStatement prep;
 
-    /* QUERY DATOS TABLA CLIENTE*/
-    public List<Cliente> obtenerTablaCliente(){
-        List<Cliente> lista = new ArrayList<Cliente>();
-        String sql = "SELECT * FROM cliente;";
+
+    /* QUERY TRAER TODOS LOS DATOS DE  RELACION ENTIDADES PAIS - CUENTA - CLIENTE*/
+    public List<Pais> getDatosClientes() {
+        List<Pais> listaDatosClientes = new ArrayList<>();
+        String sql ="select * from pais \n" +
+                    "inner join cuenta \n" +
+                    "on cuenta.cliente_numero_documento = cliente_numero_documento \n" +
+                    "inner join cliente\n" +
+                    "on cuenta.cliente_numero_documento = cliente_numero_documento;";
         try {
             prep = con.prepareStatement(sql);
             ResultSet rs = prep.executeQuery();
             while(rs.next()){
-                lista.add(
-                        new Cliente(
-                                rs.getInt("cedula"),
-                                rs.getString("nombre"),
-                                rs.getInt("sucursal_idSucursal")));
+                listaDatosClientes.add(
+                    new Pais(
+                        rs.getString("nombre_pais"),
+                            new Ciudad(
+                                rs.getString("ciudad_nombre_ciudad")),
+                                    new Cuenta(
+                                        rs.getInt("numero_cuenta"),
+                                        rs.getDouble("saldo"),
+                                        rs.getDate("fecha_creado"),
+                                        rs.getString("tipo_cuenta")),
+                                            new Cliente(
+                                                rs.getInt("numero_documento"),
+                                                rs.getString("nombres"),
+                                                rs.getString("apellidos"),
+                                                rs.getDate("fecha_creado"),
+                                                rs.getInt("numero_telefono"),
+                                                rs.getInt("clave"))));
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-        return lista;
+        return listaDatosClientes;
     }
 
-    /* QUERY OBTENER DATOS ENTIDAD SUCURSAL*/
-    public List<Sucursal> obtenerTablaSucursal(){
-        List<Sucursal> lista = new ArrayList<>();
-        String sql = "select * from sucursal;";
+    /*METODO PARA REALIZAR CONSULTA DE SALDO CON IDENTIFICACION Y CLAVE COMO PARAMETROS*/
+    public List<Cliente> getSaldo(int identificacion, int clave){
+        List<Cliente> listaSaldo= new ArrayList<>();
+        int id = identificacion;
+        int password = clave;
+        String sql = "select cliente.numero_documento as cedula, cliente.nombres, cliente.apellidos,\n" +
+                "cuenta.numero_cuenta as \"numero de cuenta\",\n" +
+                "cuenta.saldo as \"saldo disponible\",\n" +
+                "cuenta.tipo_cuenta as \"tipo de cuenta\"\n" +
+                "from cliente, cuenta \n" +
+                "where numero_documento = "+id+" and clave = "+password+";";
+
         try {
             prep = con.prepareStatement(sql);
-            ResultSet rs = prep.executeQuery();
-            while(rs.next()){
-                lista.add(
-                        new Sucursal(
-                                rs.getInt("idSucursal"),
-                                rs.getString("pais"),
-                                rs.getString("ciudad")));
+            ResultSet rs =prep.executeQuery();
+            if(rs.equals("")){
+                System.out.println("Error de identificacion o clave");
+            }else{
+                while(rs.next()){
+                    listaSaldo.add(new Cliente(rs.getInt("Cedula"),
+                            rs.getString("nombres"),
+                            rs.getString("apellidos"),
+                            new Cuenta(rs.getInt("numero de cuenta"),
+                                    rs.getDouble("saldo disponible"),
+                                    rs.getString("tipo de cuenta"))));
+
+                }
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-        return lista;
+        return listaSaldo;
     }
 
-    /* QUERY RELACION ENTIDADES SUCURSAL - CLIENTE*/
-    public List<Sucursal> getRelacionSucursalCliente() {
-        List<Sucursal> listaSucursalCliente = new ArrayList<>();
-        String sql ="select * from sucursal inner join cliente on cliente.sucursal_idSucursal = sucursal.idSucursal;";
+    public String setDeposito(Cuenta cuenta , int monto){
+
         try {
-            prep = con.prepareStatement(sql);
-            ResultSet rs = prep.executeQuery();
-            while(rs.next()){
-                listaSucursalCliente.add(
-                        new Sucursal(
-                            rs.getInt("idSucursal"),
-                            rs.getString("pais"),
-                            rs.getString("ciudad"),
-                                new Cliente(
-                                    rs.getInt("cedula"),
-                                    rs.getString("nombre"),
-                                    rs.getInt("sucursal_idSucursal"))));
+            con.setAutoCommit(false);
+
+            ResultSet rsValidator = prep.executeQuery();
+            if(rsValidator.equals("")){
+                return "Datos no encontrados";
+            }else{
+                String sqlMov = "INSERT INTO `cajero`.`movimiento` (`tipo_movimiento`, `monto`, `numero_cuenta`)" +
+                        " VALUES ('DEPOSITO', ?, ?);";
+                String sqlCuenta = "UPDATE `cajero`.`cuenta` SET `saldo` = ? WHERE (`numero_cuenta` = ?);";
+                prep = con.prepareStatement(sqlMov);
+                prep.setInt(1,monto);
+                prep.setInt(2,cuenta.getNumero_cuenta());
+                prep = con.prepareStatement(sqlCuenta);
+                prep.setInt(1,monto);
+                prep.setInt(2,cuenta.getNumero_cuenta());
+                prep.executeUpdate();
+                con.commit();
+                System.out.println("Registro exitoso");
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            e.getMessage();
         }
-        return listaSucursalCliente;
+        return null;
     }
 
-    /* QUERY RELACION ENTIDADES SUCURSAL - CLIENTE - CUENTA*/
-    public List<Sucursal> getRelacionSucursalClienteCuenta() {
-        List<Sucursal> listaSucursalCliente = new ArrayList<>();
-        String sql ="select * from sucursal inner join cliente on cliente.sucursal_idSucursal = sucursal.idSucursal" +
-                    " inner join cuenta on cuenta.cliente_cedula = cliente.cedula;";
-        try {
-            prep = con.prepareStatement(sql);
-            ResultSet rs = prep.executeQuery();
-            while(rs.next()){
-                listaSucursalCliente.add(
-                        new Sucursal(
-                            rs.getInt("idSucursal"),
-                            rs.getString("pais"),
-                            rs.getString("ciudad"),
-                                new Cliente(
-                                    rs.getInt("cedula"),
-                                    rs.getString("nombre"),
-                                    rs.getInt("sucursal_idSucursal")),
-                                        new Cuenta(
-                                            rs.getInt("numero"),
-                                            rs.getString("tipo"),
-                                            rs.getInt("cliente_cedula"))));
-            }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-        return listaSucursalCliente;
+
+    public Cliente getNumCuenta(int id, int clave){
+       return getSaldo(id, clave).get(3);
     }
 
-    /* METODO PARA MOSTRAR TABLA ENTIDAD CLIENTE*/
-    public void mostrarTablaCliente(){
-        for(Cliente cliente: obtenerTablaCliente()){
-            cliente.mostrarSelectCliente();
+    /* ESTE METODO MUESTRA TODOS LOS DATOS DE LOS CLIENTES CREADOS*/
+    public void mostarDatosClientes(){
+        for(Pais pais: getDatosClientes()){
+            pais.mostrarDatosClientes();
         }
     }
 
-    /* METODO PARA MOSTRAR TABLA ENTIDAD SUCURSAL*/
-    public void mostrarTablaSucursal(){
-        for(Sucursal sucursal:obtenerTablaSucursal()){
-            sucursal.mostrarSucursales();
+    /* ESTE METODO TRAE LA CONSULTA DE SALDO MEDIANTE IDENTIFICACION Y CLAVE*/
+    public String consultarSaldo(int id, int clave){
+        for(Cliente cliente: getSaldo(id,clave)){
+            return cliente.mostrarConsultaDeSaldo();
         }
-    }
-
-    /* MOSTRAR LA REALCION ENTRE TABLAS SUCURSAL - CLIENTE */
-    public void mostrarRelacionSucursalCliente(){
-        for(Sucursal sucursal: getRelacionSucursalCliente()){
-            sucursal.mostrarSucursalCliente();
-        }
-    }
-
-    /* MOSTRAR LA REALCION ENTRE TABLAS SUCURSAL - CLIENTE */
-    public void mostrarRelacionSucursalClienteCuenta(){
-        for(Sucursal sucursal: getRelacionSucursalClienteCuenta()){
-            sucursal.mostrarSucursalClienteCuenta();
-        }
+        return null;
     }
 
 }
