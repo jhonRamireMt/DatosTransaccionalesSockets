@@ -28,6 +28,11 @@ public class Cliente {
         this.cuenta = cuenta;
     }
 
+    public Cliente(int numero_documento, int clave) {
+        this.numero_documento = numero_documento;
+        this.clave = clave;
+    }
+
     public int getNumero_documento() {
         return numero_documento;
     }
@@ -84,7 +89,11 @@ public class Cliente {
                 "Tipo de cuenta: " +cuenta.getTipo_cuenta();
     }
 
-    public int mostrarNumeroCuenta(){
-        return cuenta.getNumero_cuenta();
+    public void mostrarClientes(){
+        System.out.println("documento: "+numero_documento);
+        System.out.println("nombre:" +nombres+" "+apellidos);
+        System.out.println("fecha de creado: "+fecha_creado);
+        System.out.println("Telefono: "+numero_telefono);
+        System.out.println("clave: "+clave);
     }
 }

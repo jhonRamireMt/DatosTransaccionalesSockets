@@ -61,12 +61,32 @@ public class SocketCliente {
             String dato = read().nextLine();
             enviarDatos().writeUTF(dato);
             if(dato.equals("1")){
+
                 System.out.println(recibirDatos().readUTF());
                 String id = read().nextLine();
                 enviarDatos().writeUTF(id);
                 System.out.println(recibirDatos().readUTF());
                 String pass = read().nextLine();
                 enviarDatos().writeUTF(pass);
+
+                System.out.println(recibirDatos().readUTF());
+                System.out.println("");
+                System.out.println("Gracias por usar nuestro servicio");
+                System.out.println("Fin de Operacion");
+                aux = false;
+
+            }if(dato.equals("2")){
+
+                System.out.println(recibirDatos().readUTF());
+                String id = read().nextLine();
+                enviarDatos().writeUTF(id);
+                System.out.println(recibirDatos().readUTF());
+                String pass = read().nextLine();
+                enviarDatos().writeUTF(pass);
+
+                System.out.println(recibirDatos().readUTF());
+                String monto = read().nextLine();
+                enviarDatos().writeUTF(monto);
                 System.out.println(recibirDatos().readUTF());
                 System.out.println("");
                 System.out.println("Gracias por usar nuestro servicio");

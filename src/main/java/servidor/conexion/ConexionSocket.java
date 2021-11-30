@@ -1,10 +1,12 @@
 package servidor.conexion;
 
+import servidor.entidad.Cliente;
 import servidor.entidad.Cuenta;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLException;
 
 public class ConexionSocket implements Runnable {
 
@@ -61,6 +63,7 @@ public class ConexionSocket implements Runnable {
                             }
                         }
                     case "2":
+
                         dataOutput.writeUTF("Ingrese su Numero identificacion");
                         String idDep = dataInput.readUTF();
                         dataOutput.writeUTF("Ingrese su clave");
@@ -71,18 +74,20 @@ public class ConexionSocket implements Runnable {
                         }else{
                             int id = Integer.parseInt(idDep);
                             int pass = Integer.parseInt(passDep);
-                            dataOutput.writeUTF("Ingresar monto");
-                            int monto = Integer.parseInt(dataInput.readUTF());
-//                            if(dao.setDeposito(new Cuenta("DEPOSITO",)monto) != null){
-//                                dataOutput.writeUTF("Detalle Consulta: "+ "\n"+dao.consultarSaldo(id,pass));
-//                            }else{
-//                                dataOutput.writeUTF("Error. Identificacion o clave erroneos");
-//                            }
+                            if(!dao.verificarCliente(id,pass)){
+                                dataOutput.writeUTF("Error. Identificacion no exitosa.");
+                            }else{
+                                dataOutput.writeUTF("Ingresar monto a Depositar");
+                                String montoEntrante = dataInput.readUTF();
+                                Double monto = Double.parseDouble(montoEntrante);
+                                dao.setDeposito(monto,id,pass);
+                                dataOutput.writeUTF("Operacion Exitosa.");
+                            }
                         }
                 }
            }
 
-        } catch (IOException e) {
+        } catch (IOException | SQLException e) {
             e.printStackTrace();
         }
     }
