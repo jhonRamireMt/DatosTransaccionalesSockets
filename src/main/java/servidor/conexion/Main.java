@@ -20,7 +20,7 @@ public class Main {
 //        Presentado por:
 //        Jhon Alexander Ramírez Bermeo, Código: 100234054
 //        Julián Rojas Bustamante, Código: 2011025228
-//        Carlos Andrés Castillo pájaro, Código: 100238069
+//        Carlos Andrés Castillo Pájaro, Código: 100238069
 //        Diana Carolina Tovar Hernández, Código: 100235804
 //        Héctor Enrique Cabra Donoso, Código 100196744
 
