@@ -38,17 +38,17 @@ public class SocketCliente {
         return this.socket;
     }
 
-    /* METODO PARA TENER UN OBJETO DE LECTURA DE DATOS POR TECLADO*/
+    /* METODO PARA TENER UN OBJETO DE LECTURA DE DATOS DE ENTRADA POR TECLADO*/
     public Scanner read(){
         return new Scanner(System.in);
     }
 
-    /* METODO PARA ENVIAR DATOS AL SOCKET SERVIDOR*/
+    /* METODO PARA ENVIAR FLUJO DE  DATOS AL SOCKET SERVIDOR*/
     public DataOutputStream enviarDatos() throws IOException {
         return new DataOutputStream(runSocket().getOutputStream());
     }
 
-    /* METODO PARA RECIBIR DATOS DESDE EL SOCKET SERVIDOR*/
+    /* METODO PARA RECIBIR FLUJO DE DATOS DESDE EL SOCKET SERVIDOR*/
     public DataInputStream recibirDatos() throws IOException {
         return new DataInputStream(runSocket().getInputStream());
     }
@@ -60,38 +60,53 @@ public class SocketCliente {
             System.out.println(recibirDatos().readUTF());
             String dato = read().nextLine();
             enviarDatos().writeUTF(dato);
-            if(dato.equals("1")){
 
-                System.out.println(recibirDatos().readUTF());
+            if(dato.equals("1")){ // EJECUCION DE CONSULTA DE SALDO
+
+                System.out.println(recibirDatos().readUTF()); // MUESTRA LOS DATOS RECIBIDOS EN CONSOLA
                 String id = read().nextLine();
-                enviarDatos().writeUTF(id);
-                System.out.println(recibirDatos().readUTF());
+                enviarDatos().writeUTF(id); //ENVIO DE FLUJO DE DATOS PARA VALIDAR IDENTIFICACION
+                System.out.println(recibirDatos().readUTF()); // MUESTRA LOS DATOS RECIBIDOS EN CONSOLA
                 String pass = read().nextLine();
-                enviarDatos().writeUTF(pass);
+                enviarDatos().writeUTF(pass); //ENVIO DE FLUJO DE DATOS PARA VALIDAR CLAVE
 
-                System.out.println(recibirDatos().readUTF());
+                System.out.println(recibirDatos().readUTF()); // MUESTRA RESPUESTA DEL SERVIDOR
                 System.out.println("");
                 System.out.println("Gracias por usar nuestro servicio");
                 System.out.println("Fin de Operacion");
                 aux = false;
 
-            }if(dato.equals("2")){
+            }if(dato.equals("2")){ // EJECUCION DE CONSIGNACION O DEPOSITO
 
-                System.out.println(recibirDatos().readUTF());
+                System.out.println(recibirDatos().readUTF()); // MUESTRA LOS DATOS RECIBIDOS EN CONSOLA
                 String id = read().nextLine();
-                enviarDatos().writeUTF(id);
-                System.out.println(recibirDatos().readUTF());
+                enviarDatos().writeUTF(id); //ENVIO DE FLUJO DE DATOS PARA VALIDAR IDENTIFICACION
+                System.out.println(recibirDatos().readUTF()); // MUESTRA LOS DATOS RECIBIDOS EN CONSOLA
                 String pass = read().nextLine();
-                enviarDatos().writeUTF(pass);
+                enviarDatos().writeUTF(pass); //ENVIO DE FLUJO DE DATOS PARA VALIDAR CLAVE
 
-                System.out.println(recibirDatos().readUTF());
+                System.out.println(recibirDatos().readUTF()); // MUESTRA RESPUESTA DEL SERVIDOR
                 String monto = read().nextLine();
-                enviarDatos().writeUTF(monto);
-                System.out.println(recibirDatos().readUTF());
+                enviarDatos().writeUTF(monto); //ENVIO DE FLUJO DE DATOS PARA DEPOSITAR MONTO
+                System.out.println(recibirDatos().readUTF()); // MUESTRA RESPUESTA DEL SERVIDOR
                 System.out.println("");
                 System.out.println("Gracias por usar nuestro servicio");
                 System.out.println("Fin de Operacion");
                 aux = false;
+
+            }if(dato.equals("4")){ // EJECUCION DE CONSULTA DE SALDO
+
+                System.out.println(recibirDatos().readUTF()); // MUESTRA LOS DATOS RECIBIDOS EN CONSOLA
+                String entrada = read().nextLine();
+                enviarDatos().writeUTF(entrada); //ENVIO DE FLUJO DE DATOS PARA VALIDAR IDENTIFICACION
+                System.out.println(recibirDatos().readUTF()); // MUESTRA LOS DATOS RECIBIDOS EN CONSOLA
+
+                System.out.println(recibirDatos().readUTF()); // MUESTRA RESPUESTA DEL SERVIDOR
+                System.out.println("");
+                System.out.println("Gracias por usar nuestro servicio");
+                System.out.println("Fin de Operacion");
+                aux = false;
+
             }
         }
     }

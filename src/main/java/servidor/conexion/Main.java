@@ -3,26 +3,27 @@ package servidor.conexion;
 
 import java.io.IOException;
 
+/**
+ * ESTA CLASE IMPLEMENTARA EL METODO MAIN
+ * SE LLAMA A LA CLASE QUE IMPLEMENTA EL SOCKET SERVER Y
+ * SE LLAMARA AL HILO METODO Run()
+ */
 public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        // CORRER EL SOCKET SERVER
+         // CORRER EL SOCKET SERVER
         ConexionSocket conexionSocket = new ConexionSocket();
         conexionSocket.run();
 
-//        verificar numero de cuenta y saldo
-//        Dao dao = new Dao();
-//        System.out.println(dao.obtenerSaldo(1019123456,2255));
-//        System.out.println(dao.obtenerNumeroCuenta(1019123456,2255));
 
-        //validar existencia del cliente
-//        Dao dao = new Dao();
-//        System.out.println(dao.verificarCliente(1019008139,2233));
-//        dao.mostarDatosClientes();
-
+//        Presentado por:
+//        Jhon Alexander Ramírez Bermeo, Código: 100234054
+//        Julián Rojas Bustamante, Código: 2011025228
+//        Carlos Andrés Castillo pájaro, Código: 100238069
+//        Diana Carolina Tovar Hernández, Código: 100235804
+//        Héctor Enrique Cabra Donoso, Código 100196744
 
 
     }
-
 }

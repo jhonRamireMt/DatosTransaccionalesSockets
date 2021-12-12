@@ -27,6 +27,10 @@ public class Cuenta {
         this.tipo_cuenta = tipo_cuenta;
     }
 
+    public Cuenta(int numero_cuenta) {
+        this.numero_cuenta = numero_cuenta;
+    }
+
     public int getNumero_cuenta() {
         return numero_cuenta;
     }

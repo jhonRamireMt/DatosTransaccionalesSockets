@@ -1,9 +1,9 @@
 package servidor.conexion;
 
-import servidor.entidad.Ciudad;
+
 import servidor.entidad.Cliente;
 import servidor.entidad.Cuenta;
-import servidor.entidad.Pais;
+import servidor.entidad.Movimiento;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Esta clase permite el acceso a datos
- * Crea los metodos de consulta a la BD MYSQL
+ * ESTA CLASE ES LA CAPA DE ACCESO A DATOS, DONDE SE CREARAN LOS METODOS QUE EJECUTARAN
+ * PETICIONES O CONSULTAS A LA BASE DE DATOS
  */
 public class Dao {
     private ConexionSql conexionSql = new ConexionSql();
@@ -24,7 +24,7 @@ public class Dao {
     private int numeroDeCuenta;
 
 
-    /* QUERY TRAER TODOS LOS DATOS DE  RELACION ENTIDADES PAIS - CUENTA - CLIENTE*/
+    /* QUERY TRAER TODOS LOS DATOS DE LA TABLA CLIENTE*/
     public List<Cliente> obtenerDatosClientes() {
         List<Cliente> listaDatosClientes = new ArrayList<>();
         String sql ="SELECT * FROM cliente;";
@@ -46,7 +46,30 @@ public class Dao {
         return listaDatosClientes;
     }
 
-    /*METODO PARA REALIZAR CONSULTA DE SALDO CON IDENTIFICACION Y CLAVE COMO PARAMETROS*/
+    /* QUERY TRAER TODOS LOS MOVIMIENTOS DEL CLIENTE VALIDADOS POR NUMERO DE CUENTA*/
+    public List<Movimiento> obtenerMovimientos(int cuentaNumero) {
+        List<Movimiento> listaDatosClientes = new ArrayList<>();
+        String sql ="select * from movimiento where movimiento.numero_cuenta = "+cuentaNumero+";";
+        try {
+            prep = con.prepareStatement(sql);
+            ResultSet rs = prep.executeQuery();
+            while(rs.next()){
+                listaDatosClientes.add(new Movimiento(
+                        rs.getInt("id_movimiento"),
+                        rs.getString("tipo_movimiento"),
+                        rs.getDouble("monto"),
+                        rs.getDate("fecha_creado"),
+                        new Cuenta(rs.getInt("numero_cuenta"))));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return listaDatosClientes;
+    }
+
+    /*METODO PARA REALIZAR CONSULTA DE SALDO CON IDENTIFICACION Y CLAVE COMO PARAMETROS
+    * ESTE METODO RETORNA UN ARRAY LIST QUE UTILIZAREMOS PARA MAPEAR EN LAS ENTIDADES,
+    * CON EL FIN DE TRAER LOS DATOS DE UNA CONSULTA DE SALDO */
     public List<Cliente> consultaDeSaldo(int identificacion, int clave){
         List<Cliente> listaSaldo= new ArrayList<>();
         int id = identificacion;
@@ -79,16 +102,19 @@ public class Dao {
         return listaSaldo;
     }
 
+    /*ESTE METODO OBTIENE UNICAMENTE EL VALOR DEL SALDO, SIENDO VERIFICADO QUE CORRESPONDA AL USUARIO CON
+    * NUMERO DE IDENTIFICACION Y CLAVE DADAS POR PARAMETRO*/
     public Double obtenerSaldo(int id, int clave){
         Double saldoValidado = null;
-        String sql = "select cuenta.saldo as \"saldo\" from cliente, cuenta  where numero_documento = "+id+" and clave = "+clave+"; ";
+        String sql = "select cuenta.saldo as \"saldo\" " +
+                "from cliente, cuenta  " +
+                "where numero_documento = "+id+" and clave = "+clave+"; ";
         try {
-            prep = con.prepareStatement(sql);
+            prep = con.prepareStatement(sql); // PREPARACION DEL QUERY
             ResultSet rs = prep.executeQuery();
             if(rs.next()){
-                saldoValidado = rs.getDouble("saldo");
+                saldoValidado = rs.getDouble("saldo"); // OBTENCION DEL SALDO
             }
-
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -96,6 +122,7 @@ public class Dao {
         return saldo;
     }
 
+    /*ESTE METODO OBTIENE EL NUMERO DE CUENTA A PARTIR DE LA VALIDACION DEL NUMERO DE IDENTIFICACION Y CLAVE*/
     public int obtenerNumeroCuenta(int id, int clave){
         Integer numCuenta = null;
         String sql = "select cuenta.numero_cuenta as \"numero de cuenta\" " +
@@ -103,12 +130,11 @@ public class Dao {
                      "where numero_documento = "+id+" " +
                      "and clave = "+clave+"; ";
         try {
-            prep = con.prepareStatement(sql);
+            prep = con.prepareStatement(sql); // PREPARACION DE LA CONSULTA
             ResultSet rs = prep.executeQuery();
             if(rs.next()){
-                numCuenta = rs.getInt("numero de cuenta");
+                numCuenta = rs.getInt("numero de cuenta"); // OPTENCION DEL NUMERO DE CUENTA
             }
-
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -116,32 +142,42 @@ public class Dao {
         return numeroDeCuenta;
     }
 
-    /*METODO QUE REALIZA LA TRANSACCION DE DEPOSITAR EB LA CUENTA*/
+    /*METODO QUE REALIZA LA TRANSACCION DE DEPOSITAR O CONSIGNAR EN LA CUENTA
+    * ES NECESARIO PASAR POR PARAMETROS EL MONTO A DEPOSITAR, EL NUMERO DE IDENTIFICACION Y CLAVE*/
     public String setDeposito(Double monto, int id,int clave) throws SQLException {
+
+        //SE REALIZA LA OPERACION QUE SUMA EL MONTO AL SALDO ACTUAL
         Double nuevoSaldo = obtenerSaldo(id,clave) + monto;
         try {
             con.setAutoCommit(false); //SE DESACTIVA EL AUTO-COMMIT PARA PODER UTILIZAR ROLLBACK
-            String sql1 = "INSERT INTO `cajero`.`movimiento` (`tipo_movimiento`, `monto`, `numero_cuenta`) " +
-                    "VALUES ('DEPOSITO', ?, ?);";
 
+            String sql1 = "INSERT INTO `cajero`.`movimiento` " +
+                          "(`tipo_movimiento`, `monto`, `numero_cuenta`) " +
+                          "VALUES ('DEPOSITO', ?, ?);";
             String sql2 = "UPDATE `cajero`.`cuenta` " +
-                    "SET `saldo` = ? " +
-                    "WHERE (`numero_cuenta` = ?);";
+                          "SET `saldo` = ? " +
+                          "WHERE (`numero_cuenta` = ?);";
 
-            PreparedStatement prep1 = con.prepareStatement(sql1);
-            PreparedStatement prep2 = con.prepareStatement(sql2);
-            prep1.setDouble(1,monto);
+            PreparedStatement prep1 = con.prepareStatement(sql1); // QUERY DE TIPO INSERT EN LA TABLA MOVIMIENTO
+            PreparedStatement prep2 = con.prepareStatement(sql2); // QUERY DE TIPO UPDATE EN LA TABLA CUENTA
+
+            prep1.setDouble(1,monto); //PARAMETRO MONTO
+
+            // SE OBTIENE NUMERO DE CUENTA Y SE PASA POR PARAMETRO
             prep1.setInt(2,obtenerNumeroCuenta(id,clave));
 
-            prep2.setDouble(1,nuevoSaldo);
-            prep2.setInt(2,obtenerNumeroCuenta(id,clave));
-            prep1.executeUpdate();
-            prep2.executeUpdate();
-            con.commit();
-            return  "Registro de saldo exitoso";
+            prep2.setDouble(1,nuevoSaldo); //SE PASA EL NUEVO SALDO EL CUAL ACTUALIZA EN LA TABLA CUENTA
 
+            // SE OBTIENE NUMERO DE CUENTA Y SE PASA POR PARAMETRO
+            prep2.setInt(2,obtenerNumeroCuenta(id,clave));
+
+            prep1.executeUpdate(); // EJECUCION QUERY INSERT
+            prep2.executeUpdate(); // EJECUCION QUERY UPDATE
+
+            con.commit(); // SI NO HAY ALGUN ERROR EN LOS QUERYS SE REALIZA EL COMMIT
+            return  "Registro de saldo exitoso";
         } catch (SQLException e) {
-            con.rollback();
+            con.rollback(); // SI HAY ALGUN ERROR EN LOS QUERYS SE REALIZA UN ROLLBACK
             e.getMessage();
         }
         return null;
@@ -163,6 +199,7 @@ public class Dao {
         return null;
     }
 
+    /*METODO QUE VALIDA LA EXISTENCIA DEL CLIENTE MEDIANTE IDENTIFICACION Y CLAVE*/
     public boolean verificarCliente(int id, int clave){
         for(Cliente cliente:obtenerDatosClientes()){
             if(cliente.getNumero_documento() == id && cliente.getClave() == clave){
@@ -170,5 +207,13 @@ public class Dao {
             }
         }
         return false;
+    }
+
+    /*METODO PARA MOSTRAR LOS DATOS DE LOS MOVIMIENTOS REALIZADOS EN UNA CUENTA*/
+    public String mostrarMovimientos(int numCuenta){
+        for(Movimiento movimiento: obtenerMovimientos(numCuenta)){
+            return movimiento.mostrarMovimientos();
+        }
+        return null;
     }
 }

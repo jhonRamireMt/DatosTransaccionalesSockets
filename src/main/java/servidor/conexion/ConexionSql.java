@@ -3,6 +3,10 @@ package servidor.conexion;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
+/**
+ * ESTA CLASE REALIZARA LA CONEXION A BASE DE DATOS
+ * SE UTILIZARA LA DEPENDENCIA DE MYSQL PARA REALIZAR LA CONEXION
+ */
 public class ConexionSql {
 
     private String bd = "cajero";
@@ -11,7 +15,7 @@ public class ConexionSql {
     private String url = "jdbc:mysql://localhost:3306/"+bd;
     private Connection conexion = null;
 
-    /* Este constructor inicializa los datos de la coexion a la BD*/
+    /* Este constructor inicializa los datos de la conexion a la BD*/
     public ConexionSql(){
         try {
            //Class.forName("com.mysql.cj.jdbc.Driver");
@@ -21,6 +25,7 @@ public class ConexionSql {
             System.out.println(e.getMessage());
         }
     }
+    /*ESTE METODO RETORNA LA CONEXION REALIZADA EN EL CONSTRUCTOR*/
     public Connection getConexion(){ //retorna el objeto de la conexion
         return conexion;
     }
