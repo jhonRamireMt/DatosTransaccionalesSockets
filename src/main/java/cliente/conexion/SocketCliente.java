@@ -60,25 +60,40 @@ public class SocketCliente {
     boolean aux = true;
 
     while (aux) {
+
+      System.out.println("Bienvenido al Banco XYZ. Digite:"+"\n"+
+        "-> 1 para Consultar saldo" +"\n"+
+        "-> 2 para Realizar un Deposito"+"\n"+
+        "-> 3 para Realizar un Retiro"+"\n"+
+        "-> 4 para Consultar Movimientos"+"\n"+
+        "-> 5 para Salir"+"\n");
+
       String opcion = read().nextLine();
 
       // EJECUCION DE CONSULTA DE SALDO
       if (opcion.equals("1")) {
-        String entrada = pedirDatos(false, false);
+        String entrada = pedirDatos("1", false);
 
         enviarDatosAlServidor(entrada);
       }
 
       // EJECUCION DE CONSIGNACION O DEPOSITO
       if (opcion.equals("2")) {
-        String entrada = pedirDatos(true, false);
+        String entrada = pedirDatos("2", true);
+
+        enviarDatosAlServidor(entrada);
+      }
+
+      // EJECUCION DE CONSIGNACION O DEPOSITO
+      if (opcion.equals("3")) {
+        String entrada = pedirDatos("3", true);
 
         enviarDatosAlServidor(entrada);
       }
 
       // EJECUCION DE CONSULTA DE MOVIMIENTOS
       if (opcion.equals("4")) {
-        String entrada = pedirDatos(false, true);
+        String entrada = pedirDatos("4", false);
 
         enviarDatosAlServidor(entrada);
       }
@@ -93,10 +108,9 @@ public class SocketCliente {
   }
 
   // Pide las credenciales del usuario
-  private String pedirDatos(boolean conMonto, boolean conMovimientos) throws IOException {
+  private String pedirDatos(String opcion, boolean conMonto) throws IOException {
     ArrayList<String> datos = new ArrayList<>();
-
-    System.out.println(recibirDatos().readUTF()); // MUESTRA LOS DATOS RECIBIDOS EN CONSOLA
+    datos.add(opcion);
 
     System.out.println("Identificacion:"); // Pedir identificacion
     datos.add(read().nextLine());
@@ -107,10 +121,6 @@ public class SocketCliente {
     if (conMonto) {
       System.out.println("Monto:"); // Pedir monto
       datos.add(read().nextLine());
-    }
-
-    if (conMovimientos) {
-      datos.add("conMovimientos"); // Bandera para solicitar movimientos del usuario
     }
 
     return datos.toString();
