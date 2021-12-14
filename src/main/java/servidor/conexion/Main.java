@@ -17,6 +17,10 @@ public class Main {
         conexionSocket.run();
 
 
+
+
+
+
 //        Presentado por:
 //        Jhon Alexander Ramírez Bermeo, Código: 100234054
 //        Julián Rojas Bustamante, Código: 2011025228

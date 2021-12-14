@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.util.Scanner;
 
 /**
  * ESTA CLASE CREA EL SOCKET SERVIDOR EL CUAL ESCUCHARA POR EL PUERTO 8888
@@ -18,13 +19,26 @@ public class ConexionSocket implements Runnable {
     private DataOutputStream dataOutput;
     private DataInputStream dataInput;
     private Thread hiloSocket;
-    private Dao dao;
+    private Dao dao = new Dao();
+
+    private String entrada;
+    private String opcion;
+    private int cuenta;
+    private int clave;
+    private int monto;
+    private String[] data;
+
 
     /* ESTE CONSTRUCTOR INICIALIZA LA DEPENDENCIA DE ACCESO A DATOS Y EL HILO DEL SOCKET*/
     public ConexionSocket() throws IOException {
-        dao = new Dao();
+
         hiloSocket = new Thread();
         hiloSocket.start();
+    }
+
+    // METODO PARA TENER UN OBJETO DE LECTURA DE DATOS DE ENTRADA POR TECLADO
+    public Scanner read() {
+        return new Scanner(System.in);
     }
 
     /**
@@ -37,83 +51,85 @@ public class ConexionSocket implements Runnable {
         System.out.println("Servicio ATM Banco XYZ Iniciado...");
         try {
             socketServidor = new ServerSocket(puerto); // CREACION DEL SOCKET SERVIDOR
-           while(true){
-                socket = socketServidor.accept(); // CSE UTILIZA UN SOCKET PARA ACEPTAR LLAMADOS AL SERVER
-                dataInput = new DataInputStream(socket.getInputStream()); // OBJETO DE RECEPCION DE DATOS
-                dataOutput = new DataOutputStream(socket.getOutputStream()); // OBJETO DE ENVIO DE DATOS
-
-               /* ESTA LOGICA DE INTERFAZ SE IMPLEMENTA EN EL SERVIDOR PERO SE OBSERVARA EN EL SOCKET CLIENTE*/
-                dataOutput.writeUTF("Bienvenido al Banco XYZ. Digite:"+"\n"+
-                        "-> 1 para Consultar saldo" +"\n"+
-                        "-> 2 para Realizar un Deposito"+"\n"+
-                        "-> 3 para Realizar un Deposito"+"\n"+
-                        "-> 4 para Consultar Movimientos"+"\n");
-                String operacion = dataInput.readUTF();
-
-                switch (operacion){
-
-                    case "1": // ESTE CASO EJECUTA UNA CONSULTA DE SALDO
-
-                        dataOutput.writeUTF("Ingrese su Numero identificacion");
-                        String dato1 = dataInput.readUTF();
-                        dataOutput.writeUTF("Ingrese su clave");
-                        String dato2 = dataInput.readUTF();
-
-                        if(dato1.equals("") || dato2.equals("")){
-                            dataOutput.writeUTF("Error. Identificacion y clave necesarios para continuar.");
-                        }else{
-                            int id = Integer.parseInt(dato1);
-                            int pass = Integer.parseInt(dato2);
-                            if(dao.consultarSaldo(id,pass) != null){
-                                dataOutput.writeUTF("Detalle Consulta: "+ "\n"+dao.consultarSaldo(id,pass));
-                            }else{
-                                dataOutput.writeUTF("Error. Identificacion o clave erroneos");
-                            }
-                        }
-                    case "2": // ESTE CASO EJECUTA UN DEPOSITO O CONSIGNACION
-
-                        dataOutput.writeUTF("Ingrese su Numero identificacion");
-                        String idDep = dataInput.readUTF();
-                        dataOutput.writeUTF("Ingrese su clave");
-                        String passDep = dataInput.readUTF();
-
-                        if(idDep.equals("") || passDep.equals("")){
-                            dataOutput.writeUTF("Error. Identificacion y clave necesarios para continuar.");
-                        }else{
-                            int id = Integer.parseInt(idDep);
-                            int pass = Integer.parseInt(passDep);
-                            if(!dao.verificarCliente(id,pass)){
-                                dataOutput.writeUTF("Error. Identificacion no exitosa.");
-                            }else{
-                                dataOutput.writeUTF("Ingresar monto a Depositar");
-                                String montoEntrante = dataInput.readUTF();
-                                Double monto = Double.parseDouble(montoEntrante);
-                                dao.setDeposito(monto,id,pass);
-                                dataOutput.writeUTF("Operacion Exitosa.");
-                            }
-                        }
-                    case "4": // ESTE CASO EJECUTA UNA CONSULTA DE MOVIMIENTO
-
-                        dataOutput.writeUTF("Ingrese su Numero de cuenta");
-                        String numCue = dataInput.readUTF();
-
-                        if(numCue.equals("")){
-                            dataOutput.writeUTF("Error. Identificacion y clave necesarios para continuar.");
-                        }else{
-                            int numCuenta = Integer.parseInt(numCue);
-
-                            if(dao.obtenerMovimientos(numCuenta).isEmpty()){
-                                dataOutput.writeUTF("Error. Cuenta no existe o no tiene movimientos.");
-                            }else{
-                                dataOutput.writeUTF(dao.mostrarMovimientos(numCuenta));
-                                dataOutput.writeUTF("Operacion Exitosa.");
-                            }
-                        }
-                }
-           }
-
-        } catch (IOException | SQLException e) {
+        } catch (IOException e) {
             e.printStackTrace();
+        }
+        try {
+           while(true) {
+
+               socket = socketServidor.accept(); // SE UTILIZA UN SOCKET PARA ACEPTAR LLAMADOS AL SERVER
+               dataInput = new DataInputStream(socket.getInputStream()); // OBJETO DE RECEPCION DE DATOS
+               dataOutput = new DataOutputStream(socket.getOutputStream()); // OBJETO DE ENVIO DE DATOS
+
+               entrada = dataInput.readUTF();
+
+               String dat = entrada.replaceAll("[^a-zA-Z0-9\\\\s]", " ").trim();
+               String cadena = dat.replaceAll("  ", " ");
+               data = cadena.split(" ");
+
+               opcion = data[0].trim();
+               if(opcion.equals("1")){ // ESTE CASO EJECUTA UNA CONSULTA DE SALDO
+                   cuenta = Integer.parseInt(data[1].trim());
+                   clave = Integer.parseInt(data[2].trim());
+                   if(dao.consultarSaldo(cuenta,clave) != null){
+                       dataOutput.writeUTF("Detalle Consulta: "+ "\n"+dao.consultarSaldo(cuenta,clave));
+                   }else{
+                       dataOutput.writeUTF("Error. Identificacion o clave erroneos");
+                   }
+               }
+               if(opcion.equals("2")){ // ESTE CASO EJECUTA UN DEPOSITO O CONSIGNACION
+                   cuenta = Integer.parseInt(data[1].trim());
+                   clave = Integer.parseInt(data[2].trim());
+                   monto = Integer.parseInt(data[3].trim());
+                   if(monto<=0){
+                       dataOutput.writeUTF("Error en el monto");
+                   }else{
+                       int res=dao.depositar(monto,cuenta,clave);
+                       if(res ==1){
+                           dataOutput.writeUTF("Trasnsaccion de deposito exitosa. Por favor consulte su nuevo saldo");
+                       }
+                       if(res==2){
+                           dataOutput.writeUTF("error usuario y contraseña");
+                       }
+                       if(res==3){
+                           dataOutput.writeUTF("error no esperado");
+                       }
+                   }
+               }
+               if(opcion.equals("3")){ // ESTE CASO EJECUTA UNA TRANSACCION DE RETIRO
+                   cuenta = Integer.parseInt(data[1].trim());
+                   clave = Integer.parseInt(data[2].trim());
+                   monto = Integer.parseInt(data[3].trim());
+                   if(monto<=0){
+                       dataOutput.writeUTF("Error en el monto");
+                   }else{
+                       int res=dao.retirar(monto,cuenta,clave);
+                       if(res ==1){
+                           dataOutput.writeUTF("Trasnsaccion de retiro exitosa. Por favor consulte su nuevo saldo.");
+                       }
+                       if(res==2){
+                           dataOutput.writeUTF("Error usuario y/o contraseña invalidos");
+                       }
+                       if(res==3){
+                           dataOutput.writeUTF("Saldo insuficiente");
+                       }
+                   }
+               }
+               if(opcion.equals("4")){ // ESTE CASO EJECUTA UNA CONSULTA DE MOVIMIENTO
+                   cuenta = Integer.parseInt(data[1].trim());
+                   clave = Integer.parseInt(data[2].trim());
+                   String consultaMovimientos=dao.mostrarMovimientos(cuenta,clave);
+                   dataOutput.writeUTF(consultaMovimientos);
+               }
+               if(opcion.equals("5")){ // ESTE CASO EJECUTA UNA CONSULTA DE MOVIMIENTO
+                   dataOutput.writeUTF("RESPUESTA DESDE EL SERVER: Proceso finalizado de manera segura");
+               }
+
+               }
+           } catch (SQLException sqlException) {
+            sqlException.printStackTrace();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
         }
     }
 }

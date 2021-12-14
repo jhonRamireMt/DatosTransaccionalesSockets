@@ -7,6 +7,7 @@ public class Cuenta {
     private Double saldo;
     private Date fecha_creado;
     private String tipo_cuenta;
+    private Cliente cliente;
 
 
     public Cuenta(int numero_cuenta, Double saldo, Date fecha_creado, String tipo_cuenta) {
@@ -30,6 +31,12 @@ public class Cuenta {
     public Cuenta(int numero_cuenta) {
         this.numero_cuenta = numero_cuenta;
     }
+
+    public Cuenta(int cuenta_numero, Cliente cliente) {
+        this.numero_cuenta=cuenta_numero;
+        this.cliente = cliente;
+    }
+
 
     public int getNumero_cuenta() {
         return numero_cuenta;
