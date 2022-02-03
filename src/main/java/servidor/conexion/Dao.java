@@ -76,6 +76,7 @@ public class Dao {
                 " movimiento.monto as \"MONTO\",\n" +
                 " movimiento.fecha_creado as \"FECHA\",\n" +
                 " cuenta.numero_cuenta as \"CUENTA NUMERO\" ,\n" +
+                " cuenta.saldo as \"SALDO DISPONIBLE\" ,\n" +
                 " cliente.nombres as \"NOMBRES CLIENTE\",\n" +
                 " cliente.apellidos as \"APELLIDOS CLIENTE\",\n" +
                 " cliente.numero_documento as \"No IDENTIFICACION\"\n" +
@@ -88,11 +89,11 @@ public class Dao {
                 listaDatosClientes.add(new Movimiento(rs.getString("TIPO DE MOVIMIENTO"),
                         rs.getInt("MONTO"),
                         rs.getDate("FECHA"),
-                        new Cuenta(rs.getInt("CUENTA NUMERO")),
+                        new Cuenta(rs.getInt("CUENTA NUMERO"),
+                                rs.getInt("SALDO DISPONIBLE")),
                                 new Cliente(rs.getString("NOMBRES CLIENTE"),
                                         rs.getString("APELLIDOS CLIENTE"),
                                         rs.getInt("No IDENTIFICACION"))));
-
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -100,9 +101,7 @@ public class Dao {
         return listaDatosClientes;
     }
 
-    /*METODO PARA REALIZAR CONSULTA DE SALDO CON IDENTIFICACION Y CLAVE COMO PARAMETROS
-    * ESTE METODO RETORNA UN ARRAY LIST QUE UTILIZAREMOS PARA MAPEAR EN LAS ENTIDADES,
-    * CON EL FIN DE TRAER LOS DATOS DE UNA CONSULTA DE SALDO */
+    /*METODO PARA REALIZAR UNA CONSULTA DE SALDO MEDIANTE USO DE NUMERO DE CUENTA Y CLAVE */
     public List<Cliente> consultaDeSaldo(int cuenta_numero, int clave){
         List<Cliente> listaSaldo= new ArrayList<>();
         int num_cuenta = cuenta_numero;
@@ -113,7 +112,6 @@ public class Dao {
                 "cuenta.tipo_cuenta as \"tipo de cuenta\"\n" +
                 "from cliente, cuenta \n" +
                 "where numero_cuenta = "+num_cuenta+" and clave = "+password+";";
-
         try {
             prep = con.prepareStatement(sql);
             ResultSet rs =prep.executeQuery();
@@ -125,7 +123,7 @@ public class Dao {
                             rs.getString("nombres"),
                             rs.getString("apellidos"),
                             new Cuenta(rs.getInt("numero de cuenta"),
-                                    rs.getDouble("saldo disponible"),
+                                    rs.getInt("saldo disponible"),
                                     rs.getString("tipo de cuenta"))));
                 }
             }
@@ -181,37 +179,12 @@ public class Dao {
         System.out.println("alcanza a entrar");
         try {
             if(!obtenerCliente(numCuenta,clave).isEmpty()){
-                int saldoActual = obtenerSaldo(numCuenta,clave); // OBTENCION DEL SALDO ACTUAL
-                con.setAutoCommit(false); // AUTO COMMIT OFF !!
-                String sql1 = "CALL sp_consignacion(?,?,?);"; // QUERY PROCEDURE
-                PreparedStatement prep1 = con.prepareStatement(sql1); // QUERY PREPARADO
-                prep1.setInt(1,monto); //SE ENVIA EL MONTO A DEPOSITAR
-                prep1.setInt(2,saldoActual); // SE ENVIA EL SALDO ACTUAL CONSULTADO
-                prep1.setInt(3,numCuenta); // SE ENVIA NUMERO DE CUENTA
-                prep1.executeUpdate(); // EJECUCION QUERY INSERT
-                con.commit(); // COMMIT OK !!
-                System.out.println("1");
-                return  1;
-            }
-            return  2;
-
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-            System.out.println("3");
-            return 3;
-        }
-    }
-
-    public int retirar(int monto, int numCuenta,int clave) throws SQLException {
-        System.out.println("alcanza a entrar");
-        try {
-            if(!obtenerCliente(numCuenta,clave).isEmpty()){
-                int saldoActual = obtenerSaldo(numCuenta,clave); // OBTENCION DEL SALDO ACTUAL
-                if(monto>saldoActual){
-                    return 3;
+                if(monto<=0){
+                    return 4;
                 }else{
+                    int saldoActual = obtenerSaldo(numCuenta,clave); // OBTENCION DEL SALDO ACTUAL
                     con.setAutoCommit(false); // AUTO COMMIT OFF !!
-                    String sql1 = "CALL sp_retiro(?,?,?);"; // QUERY PROCEDURE
+                    String sql1 = "CALL sp_consignacion(?,?,?);"; // QUERY PROCEDURE
                     PreparedStatement prep1 = con.prepareStatement(sql1); // QUERY PREPARADO
                     prep1.setInt(1,monto); //SE ENVIA EL MONTO A DEPOSITAR
                     prep1.setInt(2,saldoActual); // SE ENVIA EL SALDO ACTUAL CONSULTADO
@@ -223,11 +196,48 @@ public class Dao {
                 }
             }
             return  2;
-
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             System.out.println("3");
-            return 4;
+            return 3;
+        }
+    }
+
+    /* ESTE METODO REALIZA UN RETIRO EN LA BASE DE DATOS
+    * SE DESACTIVA EL AUTO COMMIT*/
+    public int retirar(int monto, int numCuenta,int clave) throws SQLException {
+        System.out.println("alcanza a entrar");
+        try {
+            if(!obtenerCliente(numCuenta,clave).isEmpty()){
+                int saldoActual = obtenerSaldo(numCuenta,clave); // OBTENCION DEL SALDO ACTUAL
+                if(saldoActual<=1){ //valida que el saldo actual no sea negativo
+                    return 5; // Devuelve mediante un codigo un mensaje al cliente
+                }else{
+                    if(monto>saldoActual){ // validacion del monto
+                        return 3; // Devuelve mediante un codigo un mensaje al cliente
+                    }else{
+                        if(monto<=1){
+                            return 6; // Devuelve mediante un codigo un mensaje al cliente
+                        }else{
+                            con.setAutoCommit(false); // AUTO COMMIT OFF !!
+                            String sql1 = "CALL sp_retiro(?,?,?);"; // QUERY PROCEDURE
+                            PreparedStatement prep1 = con.prepareStatement(sql1); // QUERY PREPARADO
+                            prep1.setInt(1,monto); //SE ENVIA EL MONTO A DEPOSITAR
+                            prep1.setInt(2,saldoActual); // SE ENVIA EL SALDO ACTUAL CONSULTADO
+                            prep1.setInt(3,numCuenta); // SE ENVIA NUMERO DE CUENTA
+                            prep1.executeUpdate(); // EJECUCION QUERY INSERT
+                            con.commit(); // COMMIT OK !!
+                            System.out.println("1");
+                            return  1; // Devuelve mediante un codigo un mensaje al cliente
+                        }
+                    }
+                }
+            }
+            return  2; // Devuelve mediante un codigo un mensaje al cliente
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            System.out.println("3");
+            return 4; // Devuelve mediante un codigo un mensaje al cliente
         }
     }
 

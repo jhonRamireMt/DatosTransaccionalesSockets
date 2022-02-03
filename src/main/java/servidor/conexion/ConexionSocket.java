@@ -74,7 +74,7 @@ public class ConexionSocket implements Runnable {
                    if(dao.consultarSaldo(cuenta,clave) != null){
                        dataOutput.writeUTF("Detalle Consulta: "+ "\n"+dao.consultarSaldo(cuenta,clave));
                    }else{
-                       dataOutput.writeUTF("Error. Identificacion o clave erroneos");
+                       dataOutput.writeUTF("Error. Numero de cuenta y/o clave invalidos.");
                    }
                }
                if(opcion.equals("2")){ // ESTE CASO EJECUTA UN DEPOSITO O CONSIGNACION
@@ -86,13 +86,16 @@ public class ConexionSocket implements Runnable {
                    }else{
                        int res=dao.depositar(monto,cuenta,clave);
                        if(res ==1){
-                           dataOutput.writeUTF("Trasnsaccion de deposito exitosa. Por favor consulte su nuevo saldo");
+                           dataOutput.writeUTF("Transaccion de deposito exitosa. Por favor consulte su nuevo saldo");
                        }
                        if(res==2){
-                           dataOutput.writeUTF("error usuario y contraseña");
+                           dataOutput.writeUTF("Error. Numero de cuenta y/o clave invalidos.");
                        }
                        if(res==3){
                            dataOutput.writeUTF("error no esperado");
+                       }
+                       if(res==4){
+                           dataOutput.writeUTF("Error. El saldo minimo para despositar es a partir de 1 peso");
                        }
                    }
                }
@@ -105,13 +108,19 @@ public class ConexionSocket implements Runnable {
                    }else{
                        int res=dao.retirar(monto,cuenta,clave);
                        if(res ==1){
-                           dataOutput.writeUTF("Trasnsaccion de retiro exitosa. Por favor consulte su nuevo saldo.");
+                           dataOutput.writeUTF("Transaccion de retiro exitosa. Por favor consulte su nuevo saldo.");
                        }
                        if(res==2){
-                           dataOutput.writeUTF("Error usuario y/o contraseña invalidos");
+                           dataOutput.writeUTF("Error. Numero de cuenta y/o clave invalidos.");
                        }
                        if(res==3){
+                           dataOutput.writeUTF("Tu solicitud excede el saldo de tu cuenta. Por favor verifica tu saldo.");
+                       }
+                       if(res==5){
                            dataOutput.writeUTF("Saldo insuficiente");
+                       }
+                       if(res==6){
+                           dataOutput.writeUTF("Error. Retiro no valido.");
                        }
                    }
                }
@@ -120,6 +129,7 @@ public class ConexionSocket implements Runnable {
                    clave = Integer.parseInt(data[2].trim());
                    String consultaMovimientos=dao.mostrarMovimientos(cuenta,clave);
                    dataOutput.writeUTF(consultaMovimientos);
+
                }
                if(opcion.equals("5")){ // ESTE CASO EJECUTA UNA CONSULTA DE MOVIMIENTO
                    dataOutput.writeUTF("RESPUESTA DESDE EL SERVER: Proceso finalizado de manera segura");
