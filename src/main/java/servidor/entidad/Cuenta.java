@@ -4,19 +4,20 @@ import java.util.Date;
 
 public class Cuenta {
     private int numero_cuenta;
-    private Double saldo;
+    private int saldo;
     private Date fecha_creado;
     private String tipo_cuenta;
+    private Cliente cliente;
 
 
-    public Cuenta(int numero_cuenta, Double saldo, Date fecha_creado, String tipo_cuenta) {
+    public Cuenta(int numero_cuenta, int saldo, Date fecha_creado, String tipo_cuenta) {
         this.numero_cuenta = numero_cuenta;
         this.saldo = saldo;
         this.fecha_creado = fecha_creado;
         this.tipo_cuenta = tipo_cuenta;
     }
 
-    public Cuenta(int numero_cuenta, Double saldo, String tipo_cuenta) {
+    public Cuenta(int numero_cuenta, int saldo, String tipo_cuenta) {
         this.numero_cuenta = numero_cuenta;
         this.saldo = saldo;
         this.tipo_cuenta = tipo_cuenta;
@@ -31,6 +32,16 @@ public class Cuenta {
         this.numero_cuenta = numero_cuenta;
     }
 
+    public Cuenta(int cuenta_numero, Cliente cliente) {
+        this.numero_cuenta=cuenta_numero;
+        this.cliente = cliente;
+    }
+
+    public Cuenta(int cuenta_numero, int saldo_disponible) {
+        this.numero_cuenta=cuenta_numero;
+        this.saldo = saldo_disponible;
+    }
+
     public int getNumero_cuenta() {
         return numero_cuenta;
     }
@@ -39,11 +50,11 @@ public class Cuenta {
         this.numero_cuenta = numero_cuenta;
     }
 
-    public Double getSaldo() {
+    public int getSaldo() {
         return saldo;
     }
 
-    public void setSaldo(Double saldo) {
+    public void setSaldo(int saldo) {
         this.saldo = saldo;
     }
 
@@ -61,5 +72,13 @@ public class Cuenta {
 
     public void setTipo_cuenta(String tipo_cuenta) {
         this.tipo_cuenta = tipo_cuenta;
+    }
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
     }
 }

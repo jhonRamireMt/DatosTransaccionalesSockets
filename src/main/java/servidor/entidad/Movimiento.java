@@ -1,27 +1,32 @@
 package servidor.entidad;
 
+import servidor.conexion.Dao;
+
+
 import java.util.Date;
+
+
 
 public class Movimiento {
     private int id_movimiento;
     private String tipo_movimiento;
-    private Double monto;
+    private int monto;
     private Date fecha_creado;
+    private Cliente cliente;
     private Cuenta cuenta;
+    private Dao dao;
 
-    public Movimiento(int id_movimiento, String tipo_movimiento, Double monto, Date fecha_creado, Cuenta cuenta) {
-        this.id_movimiento = id_movimiento;
-        this.tipo_movimiento = tipo_movimiento;
+    public Movimiento(String tipo_de_movimiento, int monto, Date fecha, Cuenta cuenta, Cliente cliente) {
+        this.tipo_movimiento = tipo_de_movimiento;
         this.monto = monto;
-        this.fecha_creado = fecha_creado;
+        this.fecha_creado = fecha;
         this.cuenta = cuenta;
+        this.cliente = cliente;
     }
 
-    public Movimiento(int id_movimiento, String tipo_movimiento, Double monto, Date fecha_creado) {
-        this.id_movimiento = id_movimiento;
-        this.tipo_movimiento = tipo_movimiento;
-        this.monto = monto;
-        this.fecha_creado = fecha_creado;
+
+    public Movimiento() {
+
     }
 
     public int getId_movimiento() {
@@ -40,11 +45,11 @@ public class Movimiento {
         this.tipo_movimiento = tipo_movimiento;
     }
 
-    public Double getMonto() {
+    public int getMonto() {
         return monto;
     }
 
-    public void setMonto(Double monto) {
+    public void setMonto(int monto) {
         this.monto = monto;
     }
 
@@ -56,6 +61,14 @@ public class Movimiento {
         this.fecha_creado = fecha_creado;
     }
 
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
+
     public Cuenta getCuenta() {
         return cuenta;
     }
@@ -64,8 +77,15 @@ public class Movimiento {
         this.cuenta = cuenta;
     }
     public String mostrarMovimientos(){
-        return "Tipo de Movimiento: "+tipo_movimiento+"\n"+
-                "Fecha Movimiento: " + fecha_creado +"\n"+
-                "Cuenta Numero: " +cuenta.getNumero_cuenta() +"\n";
+
+        return ("--------------------------------------------------------------"+"\n"+
+                    "CLIENTE: " +cliente.getNombres()+" "+cliente.getApellidos()+"\n"+
+                    "No IDENTIFICACION: "+cliente.getNumero_documento()+"\n"+
+                    "TIPO DE MOVIMIENTO: " + tipo_movimiento+"\n"+
+                    "MONTO: "+monto+"\n"+
+                    "FECHA DEL MOVIMIENTO: " +fecha_creado+"\n"+
+                    "NUMERO DE CUENTA: " + cuenta.getNumero_cuenta()+"\n");
+
+
     }
 }

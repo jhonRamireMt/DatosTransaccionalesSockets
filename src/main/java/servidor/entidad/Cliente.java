@@ -28,9 +28,19 @@ public class Cliente {
         this.cuenta = cuenta;
     }
 
-    public Cliente(int numero_documento, int clave) {
-        this.numero_documento = numero_documento;
-        this.clave = clave;
+    public Cliente(String nombres_cliente, String apellidos_cliente, int no_identificacion) {
+        this.nombres = nombres_cliente;
+        this.apellidos = apellidos_cliente;
+        this.numero_documento = no_identificacion;
+    }
+
+
+    public Cuenta getCuenta() {
+        return cuenta;
+    }
+
+    public void setCuenta(Cuenta cuenta) {
+        this.cuenta = cuenta;
     }
 
     public int getNumero_documento() {
